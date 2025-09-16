@@ -1,0 +1,27 @@
+name: Send Email
+
+on:
+  workflow_dispatch:
+    inputs:
+      company:
+        required: true
+        type: string
+      body:
+        required: true
+        type: string
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "New Job: ${{ github.event.inputs.company }}"
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_USER }}
+          body: ${{ github.event.inputs.body }}
