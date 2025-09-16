@@ -30,7 +30,9 @@ jobs:
           git checkout dev
           git merge upstream/dev || true
 
-      - name: Push changes
-        run: git push origin dev
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push to dev
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/zsiyed/New-Grad-2026.git
+          git push origin dev
