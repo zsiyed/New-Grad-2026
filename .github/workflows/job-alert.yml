@@ -1,0 +1,40 @@
+name: Job Alert Email
+
+on:
+  push:
+    paths:
+      - "README.md"
+
+jobs:
+  detect-and-email:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2   # get last commit to compare
+
+      - name: Get diff
+        run: |
+          git diff HEAD~1 HEAD -- README.md > diff.txt
+          cat diff.txt
+
+      - name: Extract new job lines
+        id: extract
+        run: |
+          # Grab added lines that look like job entries ("* Company: role...")
+          grep '^+.*\* ' diff.txt | sed 's/^+ *\* *//' > new_jobs.txt || true
+          echo "New jobs detected:"
+          cat new_jobs.txt || true
+
+      - name: Send emails
+        if: success()
+        run: |
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            company=$(echo "$line" | cut -d':' -f1)
+            echo "Sending email for: $company"
+            echo "$line" > body.txt
+            gh workflow run send-email.yml -f company="$company" -f body="$(cat body.txt)"
+          done < new_jobs.txt
