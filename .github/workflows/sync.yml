@@ -3,21 +3,22 @@ name: Sync Fork
 on:
   schedule:
     - cron: "*/30 * * * *"   # every 30 mins
-  workflow_dispatch:       # manual trigger
+  workflow_dispatch:         # manual trigger
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout dev
         uses: actions/checkout@v3
         with:
+          ref: dev
           persist-credentials: false
 
       - name: Set up Git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Add upstream
         run: git remote add upstream https://github.com/vanshb03/New-Grad-2026.git
@@ -32,7 +33,5 @@ jobs:
 
       - name: Push to dev
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/zsiyed/New-Grad-2026.git
-          git push origin dev
+          git push origin HEAD:dev
